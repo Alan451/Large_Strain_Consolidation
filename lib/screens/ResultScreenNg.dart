@@ -8,6 +8,7 @@ import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import '../screens/ErrorScreen.dart';
 
 
+
 Map computeResult(Map inputs,context) {
   const num spgr_w = 1,
       g = 9.81;
