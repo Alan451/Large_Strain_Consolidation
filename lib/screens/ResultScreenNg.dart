@@ -1,12 +1,10 @@
+import 'dart:html';
+import 'dart:io';
 import 'dart:math';
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
-
-
-
 import '../screens/ErrorScreen.dart';
-
 
 
 Map computeResult(Map inputs,context) {
@@ -30,13 +28,9 @@ Map computeResult(Map inputs,context) {
 
   List<ChartSeries> figOne = [
   ];
-  List <ChartSeries> figTwoData = [
+  List <ChartSeries> figTwo = [
     // Renders spline chart
 
-  ];
-  List<ChartSeries> figThree = [
-  ];
-  List<Point> figFourData = [
   ];
 
 
@@ -73,7 +67,7 @@ Map computeResult(Map inputs,context) {
   e_next[rows] = initial_vr;
   num n;
   for(int j=1;j<=hours*time_factor;++j) {
-    print(j);
+    // print(j);
     num p = j / plot_interval / time_factor;
     int PF = p.round();
     num lambda, term1,perm,term2,term3, phi1, phi2, phi3;
@@ -205,11 +199,27 @@ Map computeResult(Map inputs,context) {
   catch(e){
     print(e);
   }
+  List<Point> figTwoData = [
+  ];
+  for(num k=plot_interval;k<=hours;k+=plot_interval){
 
+    figTwoData.add(
+        Point(k,settle[(k/plot_interval).round()]*1000)
+    );
+    print(Point(k,settle[(k/plot_interval).round()]*1000));
+  }
+  figTwo.add(
+      LineSeries<Point, num>(
+        dataSource: figTwoData,
+        xValueMapper: (Point data, _) => data.x,
+        yValueMapper: (Point data, _) => data.y,
+      )
+  );
   print('Final Settlement = $finalSettlement');
   Map output = {};
   output['finalSettlement'] = finalSettlement;
   output['figOneData'] = figOne;
+  output['figTwoData'] = figTwo;
   return output;
 
 }
@@ -244,11 +254,35 @@ class _ResultScreenNgState extends State<ResultScreenNg> {
             children: [
               Text('Final Settlement: $finalSettlement'),
               SfCartesianChart(
+                  primaryXAxis: NumericAxis(
+                      title: AxisTitle(
+                        text: 'Void Ratio',
+                      ),
+                      isInversed: false
+                  ),
+                  primaryYAxis: NumericAxis(
+                      title: AxisTitle(
+                        text: 'Height(m)',
+                      ),
+                      isInversed: false
+                  ),
                   series: output['figOneData']
               ),
-              // SfCartesianChart(
-              //     series: output['figTwoData']
-              // ),
+              SfCartesianChart(
+                  primaryXAxis: LogarithmicAxis(
+                      title: AxisTitle(
+                        text: 'Time(hours)',
+                      ),
+                      isInversed: false
+                  ),
+                  primaryYAxis: NumericAxis(
+                      title: AxisTitle(
+                        text: 'Settlement(mm)',
+                      ),
+                      isInversed: true
+                  ),
+                  series: output['figTwoData']
+              ),
               // SfCartesianChart(
               //     series: output['figThreeData']
               // ),

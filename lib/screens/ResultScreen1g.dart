@@ -36,7 +36,7 @@ Map computeResult(Map inputs,context){
   ];
   List<ChartSeries> figThree = [
   ];
-  List<Point> figFourData = [
+  List<ChartSeries> figFour = [
   ];
 
   print('$spgr_s,$initial_vr,$depth,$surcharge,$minutes,$delta,$tau,$plot_interval,$a,$b,$c,$d,$f');
@@ -156,9 +156,6 @@ Map computeResult(Map inputs,context){
       for(int k=2;k<=rows-1;++k){
         heights[k+1]=heights[k]+(1+(e_next[k]+e_next[k+1])/2)*delta;
       }
-      // figure(1)
-      // hold on;
-      // plot(e_next(2:end),heights(2:end));
       List<Point> figOneData = [
       ];
       for(int k=2;k<=rows-1;++k){
@@ -185,14 +182,6 @@ Map computeResult(Map inputs,context){
         tot_pore_pr[PF][k]=tot_str[k]-eff_str;
         ex_pore_pr[PF][k]=tot_pore_pr[PF][k]-gamma_w*(depth-heights[k]);
       }
-      // figure(2)
-      // hold on;
-      // plot(tot_str(2:rows-1),heights(2:rows-1));
-      // LineSeries<Point, num>(
-      //   dataSource: output['figTwoData'],
-      //   xValueMapper: (Point data, _) => data.x,
-      //   yValueMapper: (Point data, _) => data.y,
-      // )
       List<Point> figThreeData = [
       ];
       List<Point> figTwo = [];
@@ -218,13 +207,6 @@ Map computeResult(Map inputs,context){
             yValueMapper: (Point data, _) => data.y,
           )
       );
-      // figure(3)
-      // hold on;
-      // plot(tot_pore_pr(PF,2:rows-1),heights(2:rows-1));
-      // plot(ex_pore_pr(PF,2:rows-1),heights(2:rows-1),'--');
-      // elap_time=toc;
-      // speed=j/elap_time;
-      // rem_time=(minutes*time_factor-j)/speed;
     }
 
     e_prev = e_next;
@@ -232,24 +214,23 @@ Map computeResult(Map inputs,context){
 
   }
 
-  // figure(1)
-  // xlabel('Void ratio');
-  // ylabel('Height (m)');
+  List<Point> figFourData = [
+  ];
 
-  // figure(4)
-  // plot(plot_interval:plot_interval:minutes,settle(:));
-  // set(gca,'XScale','log');
-  // set(gca,'YDir','reverse');
-  // xlabel('Time (minutes)');
-  // ylabel('Settlement (m)');
+  for(num k=plot_interval;k<=minutes;k+=plot_interval){
 
-  // sprintf('Final settlement=%0.2f cm',settle(round(round(minutes/plot_interval)))*100)
-  // T=plot_interval:plot_interval:minutes; %for time matrix printing later
-  // T=T';
-  // X=[settle,T];
-  // filename='McVey_Original';
-  // save(filename)
-
+    figFourData.add(
+        Point(k,settle[(k/plot_interval).round()]*1000)
+    );
+    print(Point(k,settle[(k/plot_interval).round()]*1000));
+  }
+  figFour.add(
+      LineSeries<Point, num>(
+        dataSource: figFourData,
+        xValueMapper: (Point data, _) => data.x,
+        yValueMapper: (Point data, _) => data.y,
+      )
+  );
   num finalSettlement = 0;
   try{
     finalSettlement = settle[(minutes/plot_interval).round()]*100;
@@ -264,6 +245,7 @@ Map computeResult(Map inputs,context){
   output['figOneData'] = figOne;
   output['figTwoData'] = figTwoData;
   output['figThreeData'] = figThree;
+  output['figFourData'] = figFour;
   return output;
 
 }
@@ -288,6 +270,18 @@ class _ResultScreen1gState extends State<ResultScreen1g> {
             children: [
               Text('Final Settlement = $finalSettlement'),
               SfCartesianChart(
+                  primaryXAxis: NumericAxis(
+                      title: AxisTitle(
+                        text: 'Void Ratio',
+                      ),
+                      isInversed: false
+                  ),
+                  primaryYAxis: NumericAxis(
+                      title: AxisTitle(
+                        text: 'Height(m)',
+                      ),
+                      isInversed: false
+                  ),
                   series: output['figOneData']
               ),
               SfCartesianChart(
@@ -295,6 +289,21 @@ class _ResultScreen1gState extends State<ResultScreen1g> {
               ),
               SfCartesianChart(
                   series: output['figThreeData']
+              ),
+              SfCartesianChart(
+                  primaryXAxis: LogarithmicAxis(
+                      title: AxisTitle(
+                        text: 'Time(minutes)',
+                      ),
+                      isInversed: false
+                  ),
+                  primaryYAxis: NumericAxis(
+                      title: AxisTitle(
+                        text: 'Settlement',
+                      ),
+                      isInversed: true
+                  ),
+                  series: output['figFourData']
               ),
             ],
 
