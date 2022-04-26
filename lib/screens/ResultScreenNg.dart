@@ -4,9 +4,10 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 
+import '../screens/ErrorScreen.dart';
 
 
-Map computeResult(Map inputs) {
+Map computeResult(Map inputs,context) {
   const num spgr_w = 1,
       g = 9.81;
   num spgr_s = inputs['spgr_s'];
@@ -137,6 +138,13 @@ Map computeResult(Map inputs) {
                 (pow(omega, 2) / g) * phi2 * (1 + e_next[i - 1]) / newn)).abs();
         if (delta > deltaMax) {
           //  Error Page
+          Navigator.pushNamed(
+            context,
+            ErrorScreen.id,
+            arguments: <String, String>{
+              'message':'Delta Check Failed',
+            },
+          );
         }
       }
 
@@ -144,7 +152,13 @@ Map computeResult(Map inputs) {
           pow(e_next[i - 1], Du)) / ((1 + e_next[i - 1]) * Au * Bu1);
       num tau_max = (-pow(delta, 2) * gamma_w / 2 / phi).abs();
       if (tau > tau_max) {
-        //  Error Page
+        Navigator.pushNamed(
+          context,
+          ErrorScreen.id,
+          arguments: <String, String>{
+            'message':'Tau Check Failed',
+          },
+        );
       }
     }
     if(j%(plot_interval*time_factor) == 0) {
@@ -212,7 +226,7 @@ class _ResultScreenNgState extends State<ResultScreenNg> {
   @override
   Widget build(BuildContext context) {
     final arguments = (ModalRoute.of(context)?.settings.arguments ?? <String, num>{}) as Map;
-    final output = computeResult(arguments);
+    final output = computeResult(arguments,context);
     final finalSettlement = output['finalSettlement'];
     return SafeArea(
       child: Scaffold(

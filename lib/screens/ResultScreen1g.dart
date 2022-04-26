@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:long_strain_consolidation/screens/ErrorScreen.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import '../screens/ErrorScreen.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 class ResultScreen1g extends StatefulWidget {
@@ -10,7 +12,7 @@ class ResultScreen1g extends StatefulWidget {
   _ResultScreen1gState createState() => _ResultScreen1gState();
 }
 
-Map computeResult(Map inputs){
+Map computeResult(Map inputs,context){
   const num spgr_w=1,g=9.81;
   num spgr_s=inputs['spgr_s'];
   num initial_vr=inputs['initial_vr'];
@@ -116,6 +118,13 @@ Map computeResult(Map inputs){
             ((gamma_s - gamma_w) * lambda + (phi3 - phi1) / 2 / delta)).abs();
         if (delta > deltaMax) {
           // Error Page
+          Navigator.pushNamed(
+            context,
+            ErrorScreen.id,
+            arguments: <String, String>{
+              'message':'Delta Check Failed',
+            },
+          );
         }
       }
       num phi = pow((e_next[i] / a), (1 / b)) / (1 + e_next[i]) / c / d /
@@ -123,6 +132,13 @@ Map computeResult(Map inputs){
       num tauMax = (-(pow(delta, 2)) * gamma_w / 2 / phi).abs();
       if (tau > tauMax) {
         //  Error Page
+        Navigator.pushNamed(
+          context,
+          ErrorScreen.id,
+          arguments: <String, String>{
+            'message':'Tau Check Failed',
+          },
+        );
       }
     }
     if(j%(plot_interval*time_factor) == 0){
@@ -256,7 +272,7 @@ class _ResultScreen1gState extends State<ResultScreen1g> {
   @override
   Widget build(BuildContext context) {
     final arguments = (ModalRoute.of(context)?.settings.arguments ?? <String, num>{}) as Map;
-    final output = computeResult(arguments);
+    final output = computeResult(arguments,context);
     final finalSettlement = output['finalSettlement'];
     return SafeArea(
       child: Scaffold(

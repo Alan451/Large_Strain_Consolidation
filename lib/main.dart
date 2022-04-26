@@ -4,6 +4,7 @@ import 'screens/ResultScreen1g.dart';
 import 'screens/InputScreen1g.dart';
 import 'screens/InputScreenNg.dart';
 import 'screens/ResultScreenNg.dart';
+import 'screens/ErrorScreen.dart';
 // this is the root of our application
 void main() async {
   runApp(const MyApp());
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
           ResultScreen1g.id: (context) => const ResultScreen1g(),
           InputScreenNg.id: (context) => const InputScreenNg(),
           ResultScreenNg.id: (context) => const ResultScreenNg(),
+          ErrorScreen.id: (context) => const ErrorScreen(),
         });
   }
 }
